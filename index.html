@@ -1,4 +1,66 @@
 <!DOCTYPE html>
+<!--
+================================================================
+CLOUDFLARE WORKER — Copy this code to make the chatbot work
+for ALL visitors without needing an API key.
+
+SETUP STEPS:
+1. Go to cloudflare.com → Workers & Pages → Create Worker
+2. Name it: mortgage-intelligence-proxy
+3. Delete all default code and paste the worker code below
+4. Click Save & Deploy
+5. Go to Settings → Variables → Add variable:
+   Name: ANTHROPIC_API_KEY
+   Value: your sk-ant-... key
+   Click Encrypt → Save
+6. Copy your Worker URL (looks like mortgage-intelligence-proxy.yourname.workers.dev)
+7. In this HTML file, find 'https://api.anthropic.com/v1/messages'
+   and replace it with your Worker URL
+8. Re-upload index.html to GitHub
+
+WORKER CODE (paste into Cloudflare Worker editor):
+----------------------------------------------------------------
+export default {
+  async fetch(request, env) {
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Origin': 'https://hallfinancial.ai',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
+    }
+
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 });
+    }
+
+    const body = await request.json();
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': 'https://hallfinancial.ai',
+      }
+    });
+  }
+};
+----------------------------------------------------------------
+================================================================
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -805,11 +867,11 @@ footer{
     <div class="hero-content">
       <div class="hero-eyebrow anim-down">
         <div class="pulse"></div>
-        Your Michigan Mortgage Coach · 30 Years of Expertise
+        Your Michigan Mortgage Coach · 24 Years of Expertise
       </div>
       <h1 class="anim-up">Your guide to<br><em>smarter homeownership.</em></h1>
       <p class="hero-sub anim-up-2">
-        24 years in personal finance. A background in financial planning, banking, and 12+ years at Rocket Mortgage. Now bringing that full picture to homebuyers through Hall Financial — because a home isn't just a place to live, it's one of the most powerful wealth-building tools you'll ever own.
+        24 years in personal finance. A background in financial planning, banking, and leadership at Rocket Mortgage. Now bringing that full picture to homebuyers through Hall Financial — because a home isn't just a place to live, it's one of the most powerful wealth-building tools you'll ever own.
       </p>
       <div class="hero-btns anim-up-3">
         <button class="btn-primary" onclick="showPage('chat')">Get Guided →</button>
@@ -852,14 +914,14 @@ footer{
         <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--purple-lt);margin-bottom:10px;">Your Guide</div>
         <h3 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:14px;">24 years of financial expertise.<br><span style="color:var(--orange);font-style:italic;">All in your corner.</span></h3>
         <p style="font-size:.92rem;color:var(--muted);line-height:1.8;max-width:620px;margin-bottom:20px;">
-          Ashley started her career as a credit union teller — and never stopped learning. She went on to manage a financial and tax practice, lead teams as a relationship manager at a bank, and spent 12 years at Rocket Mortgage in vendor management, training, and quality assurance. Today, as VP of Marketing at Hall Financial, she drives compliance, training, marketing, and the entire purchase and pre-approval experience. She doesn't just understand mortgages — she understands money, people, and what it actually takes to build lasting financial security through homeownership.
+          Ashley started her career as a credit union teller — and never stopped learning. She went on to manage a financial and tax practice, lead teams as a relationship manager at a bank, and spent years at Rocket Mortgage in vendor management, training, and quality assurance. Today, as VP of Marketing at Hall Financial, she drives compliance, training, marketing, and the entire purchase and pre-approval experience. She doesn't just understand mortgages — she understands money, people, and what it actually takes to build lasting financial security through homeownership.
         </p>
 
         <!-- Credential pills -->
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
           <span style="background:rgba(244,124,32,.12);border:1px solid rgba(244,124,32,.25);border-radius:20px;padding:5px 13px;font-size:.72rem;color:var(--orange-lt);font-weight:500;">📊 Financial Planning Background</span>
           <span style="background:rgba(244,124,32,.12);border:1px solid rgba(244,124,32,.25);border-radius:20px;padding:5px 13px;font-size:.72rem;color:var(--orange-lt);font-weight:500;">🏦 Banking &amp; Credit Union</span>
-          <span style="background:rgba(107,47,160,.15);border:1px solid rgba(107,47,160,.3);border-radius:20px;padding:5px 13px;font-size:.72rem;color:var(--purple-lt);font-weight:500;">🚀 12 Years · Rocket Mortgage</span>
+          <span style="background:rgba(107,47,160,.15);border:1px solid rgba(107,47,160,.3);border-radius:20px;padding:5px 13px;font-size:.72rem;color:var(--purple-lt);font-weight:500;">🚀 Rocket Mortgage</span>
           <span style="background:rgba(107,47,160,.15);border:1px solid rgba(107,47,160,.3);border-radius:20px;padding:5px 13px;font-size:.72rem;color:var(--purple-lt);font-weight:500;">🏆 VP Marketing · Hall Financial</span>
         </div>
 
@@ -931,7 +993,7 @@ footer{
           <div class="feature-item"><div class="feature-dot"></div>Your personal mortgage coach — buyers <em>and</em> realtors</div>
           <div class="feature-item"><div class="feature-dot"></div>Guides you at your pace, no pressure, no jargon</div>
           <div class="feature-item"><div class="feature-dot"></div>Connects you to a real HLA when you're ready to move</div>
-          <div class="feature-item"><div class="feature-dot"></div>30 years of Hall Financial expertise in every answer</div>
+          <div class="feature-item"><div class="feature-dot"></div>24 years of personal finance expertise in every answer</div>
         </div>
         <button class="btn-primary" style="margin-top:28px;" onclick="showPage('chat')">Start Your Journey →</button>
       </div>
@@ -1104,7 +1166,7 @@ footer{
       </div>
       <div class="sidebar-section">
         <div class="sidebar-title">About This Tool</div>
-        <p style="font-size:.8rem;color:var(--muted);line-height:1.65;">Mortgage Intelligence is Hall Financial's AI-powered answer engine — built on 30 years of Michigan mortgage expertise.</p>
+        <p style="font-size:.8rem;color:var(--muted);line-height:1.65;">Mortgage Intelligence is Hall Financial's AI-powered answer engine — built on 24 years of personal finance expertise.</p>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-title">Quick Topics</div>
@@ -1230,7 +1292,7 @@ function showPage(id) {
 }
 
 // ── SYSTEM PROMPTS ───────────────────────────────────────────────────
-const BASE_PROMPT = `You are Ashley, a knowledgeable and warm mortgage expert at Hall Financial — Michigan's highest-rated mortgage company with nearly 7,000 five-star reviews. You channel 30 years of industry expertise and make mortgages feel approachable.
+const BASE_PROMPT = `You are Ashley, a knowledgeable and warm mortgage expert at Hall Financial — Michigan's highest-rated mortgage company with nearly 7,000 five-star reviews. You channel 24 years of personal finance expertise and make mortgages feel approachable.
 
 Key facts:
 - Hall Financial: fast closings, easy process, underwritten pre-approvals
@@ -1240,7 +1302,7 @@ Key facts:
 - Route to 866-CALL-HALL (866-225-5425) or a Hall Financial HLA for specific situations
 - Never give specific rate quotes
 - RESPA-compliant: never recommend specific realtors
-- David Hall: 30 years experience, Rock Financial → UWM → Hall Financial founder
+- David Hall: Founder of Hall Financial, formerly Rock Financial and UWM
 
 Keep responses warm, clear, 3-5 sentences. End with follow-up or CTA. Use occasional emojis. No jargon without explanation.`;
 
